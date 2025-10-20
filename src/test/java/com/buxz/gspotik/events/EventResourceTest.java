@@ -8,7 +8,8 @@ import io.quarkus.narayana.jta.QuarkusTransaction;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
 import jakarta.inject.Inject;
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,8 +28,8 @@ class EventResourceTest {
 
     @Test
     void shouldCreateAndFetchEvent() {
-        LocalDateTime start = futureDaysFromNow(2);
-        LocalDateTime end = start.plusHours(3);
+        Instant start = futureDaysFromNow(2);
+        Instant end = start.plus(3, ChronoUnit.HOURS);
 
         long id =
                 given()
@@ -55,10 +56,10 @@ class EventResourceTest {
 
     @Test
     void shouldListEventsInChronologicalOrder() {
-        LocalDateTime earlyStart = futureDaysFromNow(3);
-        LocalDateTime earlyEnd = earlyStart.plusHours(2);
-        LocalDateTime lateStart = futureDaysFromNow(5);
-        LocalDateTime lateEnd = lateStart.plusHours(2);
+        Instant earlyStart = futureDaysFromNow(3);
+        Instant earlyEnd = earlyStart.plus(2, ChronoUnit.HOURS);
+        Instant lateStart = futureDaysFromNow(5);
+        Instant lateEnd = lateStart.plus(2, ChronoUnit.HOURS);
 
         given()
                 .contentType(ContentType.JSON)
@@ -84,8 +85,8 @@ class EventResourceTest {
 
     @Test
     void shouldUpdateAndDeleteEvent() {
-        LocalDateTime start = futureDaysFromNow(4);
-        LocalDateTime end = start.plusHours(4);
+        Instant start = futureDaysFromNow(4);
+        Instant end = start.plus(4, ChronoUnit.HOURS);
 
         long id =
                 given()
@@ -99,8 +100,8 @@ class EventResourceTest {
                         .jsonPath()
                         .getLong("id");
 
-        LocalDateTime updatedStart = futureDaysFromNow(6);
-        LocalDateTime updatedEnd = updatedStart.plusHours(2);
+        Instant updatedStart = futureDaysFromNow(6);
+        Instant updatedEnd = updatedStart.plus(2, ChronoUnit.HOURS);
 
         given()
                 .contentType(ContentType.JSON)
@@ -137,8 +138,8 @@ class EventResourceTest {
     private Map<String, Object> eventPayload(
             String title,
             String description,
-            LocalDateTime start,
-            LocalDateTime end,
+            Instant start,
+            Instant end,
             int capacity) {
         Map<String, Object> payload = new HashMap<>();
         payload.put("title", title);
@@ -150,7 +151,7 @@ class EventResourceTest {
         return payload;
     }
 
-    private LocalDateTime futureDaysFromNow(int days) {
-        return LocalDateTime.now().plusDays(days).withSecond(0).withNano(0);
+    private Instant futureDaysFromNow(int days) {
+        return Instant.now().plus(days, ChronoUnit.DAYS).truncatedTo(ChronoUnit.SECONDS);
     }
 }

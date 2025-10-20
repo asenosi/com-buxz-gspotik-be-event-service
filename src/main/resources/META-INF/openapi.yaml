@@ -1,0 +1,167 @@
+openapi: 3.0.3
+info:
+  title: Event Management Service
+  version: 1.0.0
+  description: REST API for managing events
+servers:
+  - url: http://localhost:8080
+paths:
+  /events:
+    get:
+      summary: List events
+      parameters:
+        - in: query
+          name: q
+          schema:
+            type: string
+        - in: query
+          name: location
+          schema:
+            type: string
+        - in: query
+          name: from
+          schema:
+            type: string
+            format: date-time
+        - in: query
+          name: to
+          schema:
+            type: string
+            format: date-time
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 0
+        - in: query
+          name: size
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: A list of events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EventResponse'
+    post:
+      summary: Create an event
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventRequest'
+      responses:
+        '201':
+          description: Created
+          headers:
+            Location:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventResponse'
+  /events/{id}:
+    get:
+      summary: Get an event by id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Event
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventResponse'
+        '404':
+          description: Not Found
+    put:
+      summary: Update an event
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventRequest'
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventResponse'
+        '404':
+          description: Not Found
+    delete:
+      summary: Delete an event
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Deleted
+        '404':
+          description: Not Found
+components:
+  schemas:
+    EventRequest:
+      type: object
+      required: [title, startTime, endTime, location, capacity]
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        location:
+          type: string
+        capacity:
+          type: integer
+          minimum: 1
+    EventResponse:
+      type: object
+      required: [id, title, startTime, endTime, location, capacity]
+      properties:
+        id:
+          type: integer
+          format: int64
+        title:
+          type: string
+        description:
+          type: string
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        location:
+          type: string
+        capacity:
+          type: integer
